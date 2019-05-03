@@ -1,0 +1,23 @@
+pkgbase = mingw-w64-qbittorrent-dark-git
+	pkgdesc = A dark version of bittorrent client powered by C++, Qt5 and the good libtorrent library (development version) (mingw-w64)
+	pkgver = 4.1.5.r805.g2c438e9d1
+	pkgrel = 1
+	url = https://qbittorrent.org/
+	arch = any
+	license = custom
+	license = GPL
+	license = MIT
+	license = BSD 3-Clause
+	makedepends = mingw-w64-x86_64-pkg-config
+	depends = mingw-w64-x86_64-boost
+	depends = mingw-w64-x86_64-qt5
+	depends = mingw-w64-x86_64-libtorrent-rasterbar
+	depends = mingw-w64-x86_64-zlib
+	depends = mingw-w64-x86_64-libqdark-git
+	optdepends = mingw-w64-x86_64-python3: needed for torrent search tab
+	source = qbittorrent-dark-git-4.1.5.r805.g2c438e9d1::git+https://github.com/suratovvlad/qBittorrent.git
+	validpgpkeys = D8F3DA77AAC6741053599C136E4A2D025B7CC9A2
+	sha256sums = SKIP
+
+pkgname = mingw-w64-x86_64-qbittorrent-dark-git
+

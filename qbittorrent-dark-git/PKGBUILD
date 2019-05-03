@@ -1,0 +1,60 @@
+# Contributor: Chocobo1 <https://github.com/Chocobo1>
+# Maintainer: degreeme <suratovvlad@gmail.com>
+
+_realname=qbittorrent-dark-git
+pkgbase=mingw-w64-${_realname}
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
+pkgver=4.1.5.r805.g2c438e9d1
+pkgrel=1
+pkgdesc="A dark version of bittorrent client powered by C++, Qt5 and the good libtorrent library (development version) (mingw-w64)"
+arch=('any')
+url="https://qbittorrent.org/"
+license=('custom' 'GPL' 'MIT' 'BSD 3-Clause')
+depends=("${MINGW_PACKAGE_PREFIX}-boost"
+         "${MINGW_PACKAGE_PREFIX}-qt5"
+         "${MINGW_PACKAGE_PREFIX}-libtorrent-rasterbar"
+         "${MINGW_PACKAGE_PREFIX}-zlib"
+         "${MINGW_PACKAGE_PREFIX}-libqdark-git")
+optdepends=("${MINGW_PACKAGE_PREFIX}-python3: needed for torrent search tab")
+makedepends=("${MINGW_PACKAGE_PREFIX}-pkg-config")
+source=(${_realname}-${pkgver}::git+https://github.com/suratovvlad/qBittorrent.git)
+sha256sums=('SKIP')
+validpgpkeys=('D8F3DA77AAC6741053599C136E4A2D025B7CC9A2')
+
+pkgver() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  _tag=$(git tag -l --sort -v:refname | sed -n '1,1{s/release-//p}')
+  _rev=$(git rev-list --count release-${_tag}..HEAD)
+  _hash=$(git rev-parse --short HEAD)
+  printf "%s.r%s.g%s" "$_tag" "$_rev" "$_hash"
+}
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  #git checkout dark_theme_4.1.5
+
+  # prepare env for mingw
+  sed -i 's/unix:!macx:/unix|win32-g++:/g' "src/src.pro"
+  sed -i 's/!haiku/#!haiku/g' "unixconf.pri"
+}
+
+build() {
+  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
+  cp -rf ${_realname}-${pkgver} build-${MINGW_CHOST} && cd ${srcdir}/build-${MINGW_CHOST}
+
+  ./configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --with-boost-system=boost_system-mt
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MINGW_CHOST}"
+
+  make INSTALL_ROOT=${pkgdir} install
+  install -Dm644 "COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
+}
