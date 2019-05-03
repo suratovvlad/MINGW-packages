@@ -1,0 +1,45 @@
+# Contributor: Chocobo1 <https://github.com/Chocobo1>
+# Maintainer: degreeme <suratovvlad@gmail.com>
+
+_realname=libqdark-git
+pkgbase=mingw-w64-${_realname}
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
+pkgver=0.5.3.r0.g514bf60
+pkgrel=1
+pkgdesc="Plugin for Qt applications. Choose the dark side of the style. (mingw-w64)"
+arch=('any')
+url="http://github.com/suratovvlad/libqdark"
+license=('custom' 'MIT' 'BSD 3-Clause')
+depends=("${MINGW_PACKAGE_PREFIX}-qt5")
+makedepends=("${MINGW_PACKAGE_PREFIX}-pkg-config")
+source=(${_realname}-${pkgver}::git+https://github.com/suratovvlad/libqdark.git)
+sha256sums=('SKIP')
+validpgpkeys=('D8F3DA77AAC6741053599C136E4A2D025B7CC9A2')
+
+pkgver() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  git describe --long --tags | sed 's/^FOO-//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  git submodule update --init
+
+  patch -d "./src/QDarkStyleSheet" -p1 < "./0001_fix_class_names.patch"
+}
+
+build() {
+  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
+  cp -rf ${_realname}-${pkgver} build-${MINGW_CHOST} && cd ${srcdir}/build-${MINGW_CHOST}
+
+  
+  qmake CONFIG-=debug CONFIG+=release libqdark.pro
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MINGW_CHOST}"
+
+  make INSTALL_ROOT="${pkgdir}" install
+}
