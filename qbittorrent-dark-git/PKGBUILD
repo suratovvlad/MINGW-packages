@@ -4,7 +4,7 @@
 _realname=qbittorrent-dark-git
 pkgbase=mingw-w64-${_realname}
 pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
-pkgver=4.1.5.r805.g2c438e9d1
+pkgver=4.3.2.r3.gdb27e2b06
 pkgrel=1
 pkgdesc="A dark version of bittorrent client powered by C++, Qt5 and the good libtorrent library (development version) (mingw-w64)"
 arch=('any')
@@ -17,8 +17,12 @@ depends=("${MINGW_PACKAGE_PREFIX}-boost"
          "${MINGW_PACKAGE_PREFIX}-libqdark-git")
 optdepends=("${MINGW_PACKAGE_PREFIX}-python3: needed for torrent search tab")
 makedepends=("${MINGW_PACKAGE_PREFIX}-pkg-config")
-source=(${_realname}-${pkgver}::git+https://github.com/suratovvlad/qBittorrent.git)
-sha256sums=('SKIP')
+source=(${_realname}-${pkgver}::git+https://github.com/suratovvlad/qBittorrent.git
+        001-PROCESS_CLASS_INFORMATION-require-win8.patch
+        002-fix-iconv-linking.patch)
+sha256sums=('SKIP'
+            'f91a206a88eb03562a441f0f8cbbc6be85998955ce9d5b61cb49e74540df8dae'
+            '72a56b5efd026b5f28c1834a41173640e6eedd4c62b2d74b622031591e442e0d')
 validpgpkeys=('D8F3DA77AAC6741053599C136E4A2D025B7CC9A2')
 
 pkgver() {
@@ -32,7 +36,10 @@ pkgver() {
 
 prepare() {
   cd "${srcdir}/${_realname}-${pkgver}"
-  #git checkout dark_theme_4.1.5
+  git checkout v4_3_x_dark
+  
+  patch -p1 -i ${srcdir}/001-PROCESS_CLASS_INFORMATION-require-win8.patch
+  patch -p0 -i ${srcdir}/002-fix-iconv-linking.patch
 
   # prepare env for mingw
   sed -i 's/unix:!macx:/unix|win32-g++:/g' "src/src.pro"
